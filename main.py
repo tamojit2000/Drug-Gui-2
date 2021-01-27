@@ -1,4 +1,8 @@
 import sys
+import os
+
+os.environ['TF_CPP_MIN_LOG_LEVEL'] = '3'
+
 from tensorflow.keras.models import load_model
 from numpy import argmax
 from czifile import imread
@@ -30,7 +34,7 @@ def predict(path):
     except Exception as e:
         print(path,'->',e)
 
-    sleep(15)
+    sleep(20)
         
 
 if __name__=='__main__':
