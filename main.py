@@ -1,45 +1,45 @@
-from PyQt5 import QtWidgets, uic, QtGui, QtCore
 import sys
-from functions import *
+from tensorflow.keras.models import load_model
+from numpy import argmax
+from czifile import imread
+from cv2 import resize
+from threading import Thread
+from warnings import filterwarnings
+from time import sleep
+
+filterwarnings('ignore')
+
 print('Modules Loaded')
+print()
 
-class Ui(QtWidgets.QMainWindow):
-    def __init__(self):
-        super(Ui, self).__init__()
-        uic.loadUi('basic2.ui', self)
-        self.PATH=None
-        self.pushButton.clicked.connect(self.Browse)
-        self.pushButton_2.clicked.connect(self.Predict)
-        self.pushButton_3.clicked.connect(self.Help)
-        self.show()
+LABELS={
+    0 : 'Moderately Sensitive',
+    1 : 'Resistant',
+    2 : 'Sensitive'
+    }
 
-    def Browse(self):
-        fm = QtWidgets.QFileDialog.getOpenFileName(None,'Browse File')
-        filename = fm[0]
-        if filename=='': filename='a.jpg'                
-        self.label.setPixmap(QtGui.QPixmap(filename))
-        self.PATH=filename
-        print('File Path:',self.PATH)
-        
-        
 
-    def Predict(self):
-        print('predict')
-        print('File Path:',self.PATH)
-        result=predict_from_path(self.PATH)
-        self.label_2.setText(result)
-        print(result)
-        
+def predict(path):
+    try:
+        model=load_model('tam4_model.h5')
+        img=imread(path)
+        img=img.reshape(1038,1388,1)
+        img=resize(img,(224,224))        
+        label=argmax(model.predict(img.reshape(-1,224,224,1)))
+        print(path,'->',LABELS[label])
+    except Exception as e:
+        print(path,'->',e)
+
+    sleep(15)
         
 
-    def Help(self):
-        print('Help')
-        msg = QtWidgets.QMessageBox()
-        msg.setWindowTitle("Help")
-        msg.setText(HELP_TEXT)
-        msg.setIcon(QtWidgets.QMessageBox.Information)
-        msg.exec_()
+if __name__=='__main__':
+    for args in sys.argv[1:]:
+        Thread(target=predict,args=(args,)).start()
 
-app = QtWidgets.QApplication(sys.argv)
-window = Ui()
-app.exec_()
+
+    
+        
+
+
+

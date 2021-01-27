@@ -32,3 +32,5 @@ def predict_from_path(path):
   label=np.argmax(model.predict(img.reshape(-1,224,224,1)))
   print('predicted')
   return LABELS[label]
+
+print(predict_from_path('A2.czi'))
